@@ -1,0 +1,35 @@
+//2차원배열 동적 할당
+int **arr2;
+
+
+arr2 = new int*[string_len+1];
+		
+for (j = 0; j < string_len + 1; j++) {
+	arr2[j] = new int[string_len + 1];
+}
+
+//동적할당한거 초기화
+for (j = 0; j < string_len +1; j++) {
+	for (k = 0; k < string_len + 1; k++) {
+		arr2[j][k] = 0;
+		}
+}
+
+
+
+//2동적할당 배열 해제 (생성의 역순으로 해제)
+for (j = 0; j < string_len + 1; j++) {
+	delete[] arr2[j];
+}
+delete[] arr2;
+
+<파일 입출력>
+#include <iostream>
+
+istream in("palindrome.inp");  //읽어오기
+ofstream out("palindrome.out"); //쓰기
+
+in >> T; //변수에저장
+
+out << T; //변수를 파일에 출력
+

@@ -1,0 +1,148 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+FILE *in = fopen("mst.inp", "r");
+FILE *out = fopen("mst.out", "w");
+
+int i, j, k;
+
+struct  EDGE{
+	int u, v;
+	int w;
+	int pass;
+
+};
+
+//input 배열
+int edge[100001][4];
+int result_edge[10001];
+
+//정점 배열
+int vertex[10001];
+
+int N, M; //정점과 EDGE
+int kru_sum, kru_min_edge, kru_min_index;
+
+//prim
+int super[10001];
+
+void kruskal()
+{
+	int edge_count; //n-1개의 엣지를 찾으면 종료하도록
+	int vertex_1, vertex_2;
+	int p, q;
+
+	edge_count = 0;
+	while (1) {
+		if (edge_count == N-1) {
+			fprintf(out, "Tree edges by Kruskal algorithm: %d\n", kru_sum);
+			for (k = 0; k < edge_count; k++) {
+				fprintf(out, "%d\n", result_edge[k]);
+			}
+			break;
+		}
+		kru_min_edge = 999999;
+		//최소값의 edge 찾기
+		for (i = 0; i < M; i++) {
+			if (edge[i][2] < kru_min_edge && edge[i][3] == 0) {//최소값을 구하는데 [i][4]가 1이면 이미 쓴거 0이면 안쓴거
+				kru_min_edge = edge[i][2];
+				kru_min_index = i;
+			}
+		}
+
+		//kruskal 시작
+		//두 개의 정점 다시 받아오고
+		vertex_1 = edge[kru_min_index][0];
+		vertex_2 = edge[kru_min_index][1];
+
+		//각 정점의 루트 노드 찾기
+		//find
+		p = vertex_1;
+		while (1) {
+			p = vertex[p];
+			if (p == vertex[p])
+				break;
+		}
+		q = vertex_2;
+		while (1) {
+			q = vertex[q];
+			if (q == vertex[q])
+				break;
+		}
+
+		//equl
+		if (p != q) {
+			//merge
+			vertex[p] = vertex[p];
+			vertex[q] = vertex[p];
+			result_edge[edge_count] = kru_min_index;
+			kru_sum += edge[kru_min_index][2];
+			edge[kru_min_index][3] = 1;
+			edge_count++;
+		}
+		else if(p==q) {
+			edge[kru_min_index][3] = 1;
+			continue;
+		}
+			
+	}
+}
+
+void reset() {
+	for (i = 0; i < M; i++) {
+		edge[i][3] = 0;
+	}
+	for (i = 0; i < N; i++) {
+		vertex[i] = i;
+	}
+
+	kru_sum = 0;
+}
+
+void prim(int start)
+{
+	int ck_vertex;
+	ck_vertex = start;
+
+
+}
+
+int main()
+{
+	kru_sum = 0;
+
+	fscanf(in, "%d %d", &N, &M);
+
+	
+	//kruskal
+	//각 노드들이 처음에는 자기자기신이 루트가리키도록
+	memset(vertex, -1, sizeof(vertex));
+
+	for (i = 0; i < N; i++) {
+		vertex[i] = i;
+	}
+	//엣지에 입력
+	for (i = 0; i < M; i++) {
+		fscanf(in, "%d %d %d", &edge[i][0], &edge[i][1], &edge[i][2]);
+	}
+
+	kruskal();
+	reset();
+
+	prim(0);
+	reset();
+
+	prim((N / 2) - 1);
+	reset();
+
+	prim(N - 1);
+	reset();
+	
+
+
+}

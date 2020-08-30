@@ -1,0 +1,232 @@
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <algorithm>
+#include <list>
+
+
+FILE *in = fopen("mst.inp", "r");
+FILE *out = fopen("mst.out", "w");
+
+using namespace std;
+
+int i, j, k;
+
+struct EDGE {
+	int u, v;
+	int w;
+	int index;
+};
+
+bool cmp_edge(EDGE a, EDGE b) {
+	return a.w < b.w;
+}
+bool cmp_edge2(EDGE a, EDGE b) {
+	return a.index < b.index;
+}
+
+//입력배열
+EDGE a[100001];
+EDGE b[100001];
+//결과 배열
+int result_edge[10001];
+
+//정점 배열
+int vertex[10001];
+
+int N, M; //정점과 EDGE
+int kru_sum, kru_min_edge, kru_min_index;
+
+void kruskal()
+{
+	int edge_count; //n-1개의 엣지를 찾으면 종료하도록
+	int vertex_1, vertex_2;
+	int p, q;
+	int cur_index; //정렬된 a의 현재 인덱스
+	int different_start; //가중치로 정렬된 구조체를 다시 인덱스로 정렬
+	cur_index = 0;
+	different_start = 0;
+	edge_count = 0;
+
+	while (1) {
+		if (edge_count == N - 1) {
+			fprintf(out, "Tree edges by Kruskal algorithm: %d\n", kru_sum);
+			for (k = 0; k < edge_count; k++) {
+				fprintf(out, "%d\n", result_edge[k]);
+			}
+			break;
+		}
+		while (1) {
+			if (a[different_start].w == 0)
+				break;
+			//index로 다시 정렬
+			for (i = different_start; i <= M; i++) {
+				if (a[i].w != a[i + 1].w)
+				{
+					sort(a + different_start, a + (i + 1), cmp_edge2);
+					different_start = i + 1;
+					break;
+				}
+			}
+		}
+
+
+		//최소값의 edge 찾기
+		kru_min_edge = a[cur_index].w;
+		kru_min_index = cur_index;
+
+
+		//kruskal 시작
+		//두 개의 정점 다시 받아오고
+		vertex_1 = a[kru_min_index].u;
+		vertex_2 = a[kru_min_index].v;
+
+		//각 정점의 루트 노드 찾기
+		//find
+		p = vertex_1;
+		while (1) {
+			p = vertex[p];
+			if (p == vertex[p])
+				break;
+		}
+		q = vertex_2;
+		while (1) {
+			q = vertex[q];
+			if (q == vertex[q])
+				break;
+		}
+		//equl
+		if (p != q) {
+			//merge
+			vertex[p] = vertex[p];
+			vertex[q] = vertex[p];
+			result_edge[edge_count] = a[kru_min_index].index;
+			kru_sum += a[kru_min_index].w;
+			edge_count++;
+			cur_index++;
+		}
+		else if (p == q) {
+			cur_index++;
+			continue;
+		}
+	}
+}
+
+void reset() {
+	for (i = 0; i < N; i++) {
+		vertex[i] = 0;
+	}
+}
+
+list<int> Q;
+
+void prim(int start)
+{
+	int q_out;
+	int end_cnt = 0;
+	int min;
+	int min_index;
+	int sel_index;
+	int out_cnt;
+	int del_index;
+
+	out_cnt = 0;
+	fprintf(out, "Tree edges by Prim algorithm with starting vertex %d: %d\n", start, kru_sum);
+	//리스트에 값 넣기
+	for (i = 0; i < N - 1; i++) {
+		Q.push_back(result_edge[i]);
+	}
+	vertex[start] = 1; //1이면 슈퍼노드에 포함되어있음
+	min = 9999999;
+	while (1) {
+		if (out_cnt == N - 1) {
+			out_cnt = 0;
+			end_cnt++;
+			vertex[min_index] = 1;
+			Q.remove(del_index);
+			fprintf(out, "%d\n", del_index);
+			min = 9999999;
+			
+		}
+		if (end_cnt == N - 1) //연결된 총 정점의 갯수가 n-1개 이면 멈추고
+			break;
+		q_out = Q.front(); Q.pop_front(); //앞에서 한개씩 빼서 확인해본다.
+		out_cnt++;
+		for (i = 0; i < N; i++) {
+			if ((b[q_out].u == i && vertex[i] == 1) || (b[q_out].v == i && vertex[i] == 1)) { //같은것이 있다.
+				//가중치가 최소값인지 비교
+				if (b[q_out].w <= min) {
+					if (i == b[q_out].u) {
+						if (b[q_out].w == min) { //가중치가 같을때 index값이 작은것을 쓴다.
+							if (b[q_out].index < del_index) {
+								min_index = b[q_out].v;
+								del_index = q_out;
+							}
+						}
+						else {
+							min = b[q_out].w;
+							min_index = b[q_out].v;
+							del_index = q_out;
+						}
+					}
+					else {
+						if (b[q_out].w == min) {
+							if (b[q_out].index < del_index) {
+								min_index = b[q_out].v;
+								del_index = q_out;
+							}
+						}
+						else {
+							min = b[q_out].w;
+							min_index = b[q_out].u;
+							del_index = q_out;
+						}
+					}
+				}
+				//가중치가 같은 것이 나왔다면?
+			}		
+		}
+		Q.push_back(q_out); //다시 뒤로 집어 넣는다.
+	}
+}
+
+int main()
+{
+	kru_sum = 0;
+
+	fscanf(in, "%d %d", &N, &M);
+
+
+	//kruskal
+	//각 노드들이 처음에는 자기자기신이 루트가리키도록
+	//memset(vertex, -1, sizeof(vertex));
+	for (i = 0; i < 10001; i++) {
+		vertex[i] = -1;
+	}
+
+	for (i = 0; i < N; i++) {
+		vertex[i] = i;
+	}
+	//엣지에 입력
+	for (i = 0; i < M; i++) {
+		fscanf(in, "%d %d %d", &a[i].u, &a[i].v, &a[i].w);
+		b[i].u = a[i].u;
+		b[i].v = a[i].v;
+		b[i].w = a[i].w;
+		a[i].index = i;
+		b[i].index = i;
+	}
+	sort(a, a + M, cmp_edge);
+
+	kruskal();
+	reset();
+
+	prim(0);
+	reset();
+
+	prim((N / 2));
+	reset();
+
+	prim(N - 1);
+
+}

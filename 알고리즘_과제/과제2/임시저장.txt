@@ -1,0 +1,119 @@
+#include <stdio.h>
+#include <string.h>
+
+FILE *in = fopen("palindrome.inp", "r");
+FILE *out = fopen("palindrome.out", "w");
+
+int main()
+{
+	int T; //테스트 케이스
+	int i, j, k;
+	char arr[1001] = { 0, };
+	int left, right, mid; //처음, 끝, 중간
+	int string_len; //문자의 갯수
+	int arr_max;
+	int incorrect; //문자 틀린갯수
+
+	fscanf(in, "%d", &T);
+
+	for (i = 0; i < T; i++) {
+		fscanf(in, "%s", &arr);
+
+		string_len = 0;
+		incorrect = 0;
+
+		//총 문자갯수를 구했음.
+		for (j = 0; ; j++) {
+			if (arr[j] == 0)
+				break;
+			string_len++;
+		}
+
+		arr_max = string_len - 1;
+
+		left = 0;
+		right = arr_max;
+		mid = arr_max / 2;
+
+		while (1) {
+			if (left == right && arr[left - 1] == arr[right + 1]) {
+				break;
+			}
+			else if (left == right && arr[left - 1] != arr[right + 1]) {
+				incorrect++;
+				break;
+			}
+			else if (left > mid)
+				break;
+			else if (arr[left] == arr[right]) {
+				left++;
+				right--;
+			}
+			else if (arr[left] != arr[right]) {
+				if (arr[left + 1] == arr[right]) {
+					left++;
+					incorrect++;
+				}
+				else {
+					for (k = 1; k <= 2; k++) {
+						if (arr[left] == arr[right - k]) {
+							left++;
+							right = right - k - 1;
+							break;
+						}
+						else if (k == 2 && arr[left] != arr[right - k]) {
+							left++;
+							incorrect++;
+						}
+					}
+				}
+			}
+
+		} //왼쪽검사
+
+		left = 0;
+		right = arr_max;
+
+		while (1) {
+			if (left == right && arr[left - 1] == arr[right + 1]) {
+				break;
+			}
+			else if (left == right && arr[left - 1] != arr[right + 1]) {
+				incorrect++;
+				break;
+			}
+			else if (left > mid)
+				break;
+			else if (arr[left] == arr[right]) {
+				left++;
+				right--;
+			}
+			else if (arr[left] != arr[right]) {
+				if (arr[left ] == arr[right-1]) {
+					right--;
+					incorrect++;
+				}
+				else {
+					for (k = 1; k <= 2; k++) {
+						if (arr[left + k] == arr[right]) {
+							right--;
+							left = left + k + 1;
+							break;
+						}
+						else if (k == 2 && arr[left + k] != arr[right]) {//!!
+							//오른쪽검사했는데 현재 오른쪽검사기준 문자는 왼쪽에 없다.
+							incorrect++;
+							right--;
+						}
+					}
+				}
+			}
+		}
+
+		//출력조건 및 출력
+		if (incorrect >= 3)
+			fprintf(out, "-1\n");
+		else
+			fprintf(out, "%d\n", incorrect);
+	}
+}

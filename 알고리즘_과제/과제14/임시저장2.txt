@@ -1,0 +1,147 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+FILE *in = fopen("coin.inp", "r");
+FILE *out = fopen("coin.out", "w");
+
+int i, j, k, t;
+int a, b, c;
+int a12, a13, a23;
+//DP[A][B][C]
+int DP[101][101][101];
+
+void A12(int A, int B, int C)
+{
+	for (a = 1; a <= 2; a++) {
+		if (A - a < 0)
+			break;
+		if (DP[A - a][B][C] == 0)
+			a12++;
+	}
+	for (b = 1; b <= 2; b++) {
+		if (B-b < 0)
+			break;
+		if (DP[A][B - b][C] == 0)
+			a12++;
+	}
+	for (c = 1; c <= 2; c++) {
+		if (C-c < 0)
+			break;
+		if (DP[A][B][C - c] == 0)
+			a12++;
+	}
+}
+
+void A13(int A, int B, int C)
+{
+	for (a = 1; a <= 3; a++) {
+		if (a == 2)
+			continue;
+		if (A - a < 0)
+			break;
+		if (DP[A - a][B][C] == 0)
+			a13++;
+	}
+	for (b = 1; b <= 3; b++) {
+		if (b == 2)
+			continue;
+		if (B-b < 0)
+			break;
+		if (DP[A][B - b][C] == 0)
+			a13++;
+	}
+	for (c = 1; c <= 3; c++) {
+		if (c == 2)
+			continue;
+		if (C-c < 0)
+			break;
+		if (DP[A][B][C - c] == 0)
+			a13++;
+	}
+}
+
+void A23(int A, int B, int C)
+{
+	for (a = 2; a <= 3; a++) {
+		if (A - a < 0)
+			break;
+		if (DP[A - a][B][C] == 0)
+			a23++;
+	}
+	for (b = 2; b <= 3; b++) {
+		if (B-b < 0)
+			break;
+		if (DP[A][B - b][C] == 0)
+			a23++;
+	}
+	for (c = 2; c <= 3; c++) {
+		if (C-c < 0)
+			break;
+		if (DP[A][B][C - c] == 0)
+			a23++;
+	}
+
+}
+
+
+int main()
+{
+	int T; // 테스트 케이스
+	int A, B, C; //병
+	
+
+	//엘리스가 0이면 이기고 -1이면 진다.
+	//DP처음 수 초기화
+	DP[0][0][1] = -1;
+	DP[0][1][0] = -1;
+	DP[1][0][0] = -1;
+	//DP를 먼저 만들어 놓고 시작
+	//이전플레이어가 k개를 가지고 가면 현재 플레이어는 k개를 못 가지고 간다
+	for (i = 0; i < 101; i++) {
+		for (j = 0; j < 101; j++) {
+			for (k = 0; k < 101; k++) {
+				if (i == 0 && j == 0 && k == 1) {
+					continue;
+				}
+				if (i == 0 && j == 1 && k == 0) {
+					continue;
+				}
+ 				if (i == 1 && j == 0 && k == 0) {
+					continue;
+				}
+				if (i == 0 && j == 0 && k == 0)
+					continue;
+				//
+				a12 = a13 = a23 = 0;
+				A12(i, j, k);
+				A13(i, j, k);
+				A23(i, j, k);
+				if (a12 >= 2 && a13 >= 2 && a23 >= 2)
+					DP[i][j][k] = -1;
+				else
+					DP[i][j][k] = 0;
+
+			}
+		}
+	}
+
+	fscanf(in, "%d", &T);
+
+	for (t = 0; t < T; t++) {
+
+		fscanf(in, "%d %d %d", &A, &B, &C);
+
+
+		//엘리스가 이김  > 1 출력
+		if (DP[A][B][C] == 0)
+			fprintf(out, "(%d %d %d) : 1\n", A, B, C);
+
+		else if(DP[A][B][C] == -1)
+			//엘리스가 짐 > -1 출력
+			fprintf(out, "(%d %d %d) : -1\n", A, B, C);
+
+	}
+
+
+}

@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+FILE *in = fopen("drive.inp", "r");
+FILE *out = fopen("drive.out", "w");
+
+int hori[105][105]; //수평
+int ver[105][105];  //수직
+int dp[105][105][211][2]; //동적배열
+// 행, 열, 회전횟수, 방향(0은 오른쪽, 1은 아래쪽)
+
+int min(int a, int b) {
+	return a < b ? a : b;
+}
+int max(int a, int b) {
+	return a > b ? a : b;
+}
+
+int main() {
+
+	int T; //테스트 케이스의 수
+	int t, i, j, k;
+	int M; //그리드 행의 수
+	int N; //그리드 열의 수
+	int L; //격자를 직선 주행하는데 걸리는 시간
+	int G; //연료량
+	int MAX_r; //최대 회전 수
+	int result; //결과
+	int bang; //방향
+	fscanf(in, "%d", &T);
+
+	//출력은 가능하면 가장 빨리 도착했을때 시간
+	//안된다면 -1 출력
+	for (t = 0; t < T; t++) {
+		result = -1; //기본값 -1
+		fscanf(in, "%d %d %d %d", &M, &N, &L, &G);
+
+		//수평 입력받기
+		for (i = 0; i < M; i++) {
+			for (j = 0; j < N - 1; j++) {
+				fscanf(in, "%d ", &hori[i][j]);
+			}
+		}
+
+		
+		//수직 입력받기.
+		for (i = 0; i < M - 1; i++) {
+			for (j = 0; j < N; j++) {
+				fscanf(in, "%d ", &ver[i][j]);
+			}
+		}
+
+		memset(dp, 101, sizeof(dp));
+
+		//높은 수로 초기화
+		//for (i = 0; i < M; i++) {
+		//	for (j = 0; j < N; j++) {
+		//		for (k = 0; k <= M + N; k++) {
+		//			dp[i][j][k][0] = dp[i][j][k][1] = 101;
+		//		}
+		//	}
+		//}
+		
+		//제일 처음 값 초기화
+		dp[0][0][0][0] = dp[0][0][0][1] = 0;
+		MAX_r = N + M;
+		//채워넣기
+		//방향전환을 하지 않고 왼쪽
+		//dp[i][j-1][k][0]+hori[i][j-1]
+		//방향전환을 하고 왼쪽
+		//dp[i][j-1][k-1][1]+hori[i][j-1]
+		//방향 전환을 하지 않고 위
+		//dp[i-1][j][k][1]+ver[i-1][j]
+		//방향 전환을 하고 위
+		//dp[i-1][j][k-1][0] + ver[i-1][j]
+		for (i = 0; i < M; i++) {
+			for (j = 0; j < N; j++) {
+				for (k = 0; k <= N; k++) {
+					if (i == 0) break;
+					//아래쪽
+					else {
+						dp[i][j][k][1] = dp[i - 1][j][k][1] + ver[i - 1][j]; //방향전환을 하지 않고 위
+						if (k >=1 ) {
+							dp[i][j][k][1] = min(dp[i][j][k][1], dp[i - 1][j][k - 1][0] + ver[i - 1][j]);
+							                                     //방향 전환을 하고 위
+						}
+					}
+					if (j == 0) break;
+					//오른쪽
+					else {
+						dp[i][j][k][0] = dp[i][j - 1][k][0] + hori[i][j - 1]; //방향전환을 하지 않고 왼쪽
+						if (k >= 1) {
+							dp[i][j][k][0] = min(dp[i][j][k][0], dp[i][j - 1][k - 1][1] + hori[i][j - 1]);
+							                                     //방향전환을 하고 왼쪽
+						}
+					}
+				}
+			}
+		}
+		
+		for (k = 0; k <= N; k++) {
+			for (bang = 0; bang < 2; bang++) {
+				if (dp[M - 1][N - 1][k][bang] <= G) {
+					if (result == -1 || result > (M - 1 + N - 1)*L + k) {
+						result = (M - 1 + N - 1)*L + k;
+					}
+				}
+			}
+		}
+		fprintf(out, "%d\n", result);
+	}
+}

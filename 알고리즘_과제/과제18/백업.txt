@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string>
+#include <vector>
+#define MIN(a,b) (a>b ? a : b)
+
+using namespace std;
+
+FILE *in = fopen("color.inp", "r");
+FILE *out = fopen("color.out", "w");
+
+int i, j, k;
+
+
+int DP[5001][5001];
+char A[5002]; //첫 번째 라인
+char B[5002]; //두 번째 라인
+int AZ[27]; // 시작과 끝
+char cmp[10004];
+
+void reset()
+{
+	for (i = 0; i < 5001; i++) {
+		for (j = 0; j < 5001; j++) {
+			DP[i][j] = 0;
+		}
+	}
+}
+
+int car_cnt(char a[])
+{
+
+	for(i = 0 ; ; i++) {
+		if (a[i] == NULL) {
+			return i;
+			break;
+		}
+			
+	}
+}
+
+void color_cnt(int a_cnt, int b_cnt) {
+	
+	for (i = 0; i < a_cnt; i++) {
+		for (j = 0; j < b_cnt; j++) {
+
+		}
+	}
+
+	
+
+}
+
+int main()
+{
+	int T; //테스트 케이스
+	int t;
+	int pro_cnt;//현재 계속 추가될수있는 것들 +
+	int A_cnt, B_cnt;
+
+	fscanf(in, "%d", &T);
+
+	for (t = 1; t <= T; t++) {
+		fscanf(in, "%s", &A);
+		fscanf(in, "%s", &B);
+
+		//A,B 차선의 대수 확인.
+		A_cnt = car_cnt(A);
+		B_cnt = car_cnt(B);
+
+		//각 색깔이 몇개 있는가?
+		color_cnt(A_cnt, B_cnt);
+		
+
+
+		//DP를 만드는곳
+		pro_cnt = 0;
+		for (i = 0; i < B_cnt; i++) {
+			for (j = 0; j < A_cnt; j++) {
+				if (i == 0 && j == 0)
+					continue;
+
+			}
+		}
+
+
+
+	}
+}

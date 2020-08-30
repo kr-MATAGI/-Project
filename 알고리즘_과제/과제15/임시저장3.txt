@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define MAX(a,b) (a > b ? a : b)
+
+FILE *in = fopen("stickers.inp", "r");
+FILE *out = fopen("stickers.out", "w");
+
+int i, j, k, t;
+int arr[2][100001];
+int DP[2][100001];
+
+int shift(int num) {
+	if (num == 0) {
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int main()
+{
+	int T; //테스트 케이스
+	int st_num; // 스티커 가로 갯수
+	int sf_zero, sf_one; //시프트 변수
+
+	fscanf(in, "%d", &T); //총 횟수 입력
+
+	for (t = 0; t < T; t++) {
+		sf_zero = 0;
+		sf_one = 1;
+		fscanf(in, "%d", &st_num); //가로갯수 입력
+
+								   //스티커 입력
+		for (i = 0; i < st_num; i++) {
+			fscanf(in, "%d ", &arr[0][i]);
+		}
+
+		for (i = 0; i < st_num; i++) {
+			fscanf(in, "%d ", &arr[1][i]);
+		}
+		DP[0][0] = arr[0][0];
+		DP[1][0] = arr[1][0];
+
+		sf_zero = shift(sf_zero);
+		sf_one = shift(sf_one);
+		//DP 0
+		for (i = 1; i < st_num; i++) {
+			if(st_num >=3 ){
+				if (arr[sf_zero][i] + arr[sf_one][i + 1] < arr[sf_zero][i + 1]) {
+					DP[0][i] = DP[0][i - 1];
+				
+				}
+				else {
+					DP[0][i] = DP[0][i - 1] + arr[sf_zero][i];
+					sf_one = shift(sf_one);
+					sf_zero = shift(sf_zero);
+				}
+			}
+			else {
+				DP[0][i] = DP[0][i - 1] + arr[sf_zero][i];
+				sf_one = shift(sf_one);
+				sf_zero = shift(sf_zero);
+			}
+		}
+		sf_one = 0;
+		sf_zero = 1;
+		//DP 1;
+		for (i = 1; i < st_num; i++) {
+			if (st_num >= 3) {
+				if (arr[sf_one][i] + arr[sf_zero][i + 1] < arr[sf_one][i + 1]) {
+					DP[1][i] = DP[1][i - 1];
+				}
+				else {
+					DP[1][i] = DP[1][i - 1] + arr[sf_one][i];
+					sf_one = shift(sf_one);
+					sf_zero = shift(sf_zero);
+				}
+			}
+			else {
+				DP[1][i] = DP[1][i - 1] + arr[sf_one][i];
+				sf_one = shift(sf_one);
+				sf_zero = shift(sf_zero);
+			}
+		}
+
+		fprintf(out, "%d\n", MAX(DP[0][st_num - 1], DP[1][st_num - 1]));
+
+		memset(arr, 0, sizeof(arr));
+		memset(DP, 0, sizeof(DP));
+	}
+}

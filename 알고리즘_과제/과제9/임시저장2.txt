@@ -1,0 +1,170 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+FILE *in = fopen("path.inp", "r");
+FILE *out = fopen("path.out", "w");
+
+int floyd[50][50]; //플로이드 계산을 할곳.
+int P[50][50]; //최단경로를 알려줄거.
+int v[250];
+int f[250];
+int v_c;
+int f_c;
+int S, V, T; //출발 정점, 경유지, 목적지 정점 ...-1 -1 -1 나올떄까지
+int len;
+int n; //간선의 개수 max 50 0부터
+int m; //총 정점의 수 max 500
+
+int MIN(int a, int b) {
+	return a < b ? a : b;
+}
+
+bool f_folyd(int start, int end) {
+	int i, j;
+	int min;
+	int index = 999;
+
+	if (P[start][end] == 999) {
+		if (start == S && end == T)
+			return false;
+		v[v_c] = end;
+		v_c++;
+		len = len + floyd[start][end];
+	}
+	else if (P[start][end] != 999) {
+		//도중에 S나 T를 지나가는
+		if (P[start][end] == S || P[start][end] == T) {
+			while (1) {
+				if (index == S || index == T) {
+					for (i = f_c - 1; i >= 0; i--) {
+						v[v_c] = f[i];
+						v_c++;
+					}
+					v[v_c] = V;
+					v_c++;
+					return true;
+				}
+				min = 999;
+				for (i = 0; i < n; i++) {
+					if (i != end) {
+						if (min > floyd[i][end]) {
+							min = floyd[i][end];
+							index = i;
+						}
+					}
+				}//포문끝
+				if (index == S || index == T)
+					continue;
+				f[f_c] = index;
+				f_c++;
+				end = index;
+			}
+		}
+		f_folyd(start, P[start][end]);
+		f_folyd(P[start][end], end);
+	}
+}
+
+
+int main()
+{
+
+	int s, t, w; //i, j, 가중치 ..m개의 줄
+	//빈줄
+	bool check;
+	int i, j, k, x;
+	int cur_dir;
+	int start;
+
+	int mid_dir;
+	v_c = 0;
+	f_c = 0;
+	//floyd와 arr_n을 모두 999로 초기화
+	for (k = 0; k < 50; k++) {
+		for (i = 0; i < 50; i++) {
+			for (j = 0; j < 50; j++) {
+				floyd[i][j] = 999;
+				P[i][j] = 999;
+			}
+		}
+	}
+	//p는 0으로 초기화
+	//p가 0이라면 직접간다는것.
+
+
+
+	fscanf(in, "%d %d", &n, &m);
+
+	for (i = 0; i < m; i++) {
+		fscanf(in, "%d %d %d", &s, &t, &w);
+
+		floyd[s][t] = w;
+	}//가중치 입력
+
+	//floyd 알고리즘
+	for (k = 0; k < n; k++) {
+		for (i = 0; i < n; i++) {
+			for (j = 0; j < n; j++) {
+				if (i == j) {
+					floyd[i][j] = 0;
+					continue;
+				}
+				if (floyd[i][k] + floyd[k][j] < floyd[i][j]) {
+					P[i][j] = k;
+					floyd[i][j] = floyd[i][k] + floyd[k][j];
+				}
+			}
+		}
+	}
+	//for (i = 0; i < n; i++) {
+	//	for (j = 0; j < n; j++) {
+	//		printf("%3d ", floyd[i][j]);
+	//	}
+	//	printf("\n");
+	//}
+	//printf("\n");
+	//for (i = 0; i < n; i++) {
+	//	for (j = 0; j < n; j++) {
+	//		printf("%3d ", P[i][j]);
+	//	}
+	//	printf("\n");
+	//}
+
+	while (1) {
+		check = true;
+		len = 0;
+		fscanf(in, "%d %d %d", &S, &V, &T);
+		if (S == -1 && V == -1 && T == -1)
+			break;
+		v[v_c] = S;
+		v_c++;
+		check = f_folyd(S, V);
+		if (check != false)
+			check = f_folyd(V, T);
+
+		if (len == 0) {
+			fprintf(out, "%d %d %d (-1)\n", S, V, T);
+		}
+
+		else if (check != false) {
+			for (i = 0; i < v_c; i++) {
+				fprintf(out, "%d ", v[i]);
+			}
+			fprintf(out, "(%d)\n", len);
+		}
+
+		else {
+			fprintf(out, "%d %d %d (-1)\n", S, V, T);
+		}
+
+		//배열 초기화
+		for (i = 0; i < v_c; i++) {
+			v[i] = 0;
+		}
+		v_c = 0;
+
+
+	}
+
+}
